@@ -50,15 +50,20 @@ export class UserManager {
         }
 
         const room = this.roomManager.createRoom(user1, user2)
+        this.clearQueue()
     }
 
     initHandal(socket: Socket) {
         socket.on("offer", ({sdp, roomId}: {sdp: string, roomId: string}) => {
-            this.roomManager.onOffer(roomId, sdp)
+            this.roomManager.onOffer(roomId, sdp, socket.id)
         })
 
-        socket.on("anser", ({sdp, roomId}: {sdp: string, roomId: string}) => {
-            this.roomManager.onAnser(roomId, sdp)
+        socket.on("answer", ({sdp, roomId}: {sdp: string, roomId: string}) => {
+            this.roomManager.onAnser(roomId, sdp, socket.id)
+        })
+
+        socket.on("add-ice-candidate", ({candidate, roomId, type}) => {
+            this.roomManager.onIceCandidates(roomId, socket.id, candidate, type);
         })
     }
     

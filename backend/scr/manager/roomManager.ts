@@ -24,28 +24,52 @@ export class RoomManager {
             user2
         })
 
-        user1?.socket.emit("sender-offer", {
+        user1.socket.emit("sender-offer", {
+            roomId
+        })
+
+        user2.socket.emit("sender-offer", {
             roomId
         })
     }
 
-    onOffer(roomId: string, sdp: string) {
+    onOffer(roomId: string, sdp: string, senderSocketid: string) {
         console.log("offer send")
-        const user2 = this.room.get(roomId)?.user2
-        user2?.socket.emit("offer", {
-            sdp,
+        const room = this.room.get(roomId)
+        if (!room) {
+            return
+        }
+
+        const receivingUser = room.user1.socket.id === senderSocketid ? room.user2: room.user1
+        receivingUser.socket.emit("offer", {
+            sdp, 
             roomId
         })
     }
 
-    onAnser(roomId: string, sdp: string) {
+    onAnser(roomId: string, sdp: string, senderSocketid: string) {
         console.log("anser done");
         
-        const user1 = this.room.get(roomId)?.user1
-        user1?.socket.emit("answer", {
+        const room = this.room.get(roomId)
+        if (!room) {
+            return;
+        }
+        const receivingUser = room.user1.socket.id === senderSocketid ? room.user2: room.user1;
+
+        receivingUser.socket.emit("answer", {
             sdp,
             roomId
         })
+    }
+
+    onIceCandidates(roomId: string, senderSocketid: string, candidate: any, type: "sender" | "receiver") {
+        const room = this.room.get(roomId)
+        if(!room) {
+            return
+        }
+
+        const receivingUser = room.user1.socket.id === senderSocketid ? room.user2 : room.user1
+        receivingUser.socket.emit("add-ice-candidate", ({candidate, type}))
     }
 
     generate() {

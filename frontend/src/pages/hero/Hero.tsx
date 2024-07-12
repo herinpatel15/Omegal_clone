@@ -5,14 +5,14 @@ import Room from "../room/Room";
 export default function Hero() {
 
     const [name, setName] = useState("")
-    const [localVideoTrack, setLocalVideoTrack] = useState<MediaStreamTrack | null>(null)
-    const [localAudioTrack, setLocalAudioTrack] = useState<MediaStreamTrack | null>(null)
+    const [localVideoTrack, setLocalVideoTrack] = useState<MediaStreamTrack | undefined>()
+    const [localAudioTrack, setLocalAudioTrack] = useState<MediaStreamTrack | undefined>()
     const [join, setJoin] = useState(false)
 
     const videoRef = useRef<HTMLVideoElement | null>(null)
 
     const getMedia = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        const stream = await window.navigator.mediaDevices.getUserMedia({
             video: true,
             audio: true
         })
@@ -44,14 +44,10 @@ export default function Hero() {
                     value={name}
                     onChange={e => setName(e.target.value)}
                 />
-                <Link 
-                    to={`/room/?name=${name}`}
-                >Join</Link>
+                <button onClick={() => setJoin(true)}>Join</button>
             </div>
         )
     }
 
     return <Room name={name} localVideoTrack={localVideoTrack} localAudioTrack={localAudioTrack} />
-
-    
 }
